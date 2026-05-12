@@ -1,0 +1,27 @@
+#secrets
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+credentials
+.aws/
+*.kubeconfig
+kubeconfig
+
+#terraform files
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+
+#logs and temp files
+*.log
+tmp/
+temp/

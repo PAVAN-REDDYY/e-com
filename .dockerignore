@@ -1,0 +1,11 @@
+.git/
+.github/
+.gitignore
+*.md
+.env*
+terraform/
+docs/
+scripts/
+tests/
+*.tfstate
+*.tfvars
