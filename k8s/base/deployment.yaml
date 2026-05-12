@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecom-frontend
+  namespace: ecom
+  labels:
+    app: ecom-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ecom-frontend
+  template:
+    metadata:
+      labels:
+        app: ecom-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: nginx:1.25-alpine
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "200m"
+            limits:
+              memory: "128Mi"
+              cpu: "300m"
