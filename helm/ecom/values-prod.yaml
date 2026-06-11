@@ -1,0 +1,14 @@
+---
+replicaCount: 5
+
+ingress:
+  host: ecom.com
+  className: nginx
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "200m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
