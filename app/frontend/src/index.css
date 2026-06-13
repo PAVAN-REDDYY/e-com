@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-bone text-ink font-sans antialiased;
+  }
+
+  /* Consistent, accessible focus ring across interactive elements. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-clay ring-offset-2 ring-offset-bone;
+  }
+
+  h1, h2, h3 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  /* Page container — keeps content aligned to the design grid. */
+  .container-content {
+    @apply mx-auto w-full max-w-content px-5 sm:px-8;
+  }
+
+  /* Subtle, reusable card surface. */
+  .surface {
+    @apply rounded-2xl border border-stone-200 bg-white;
+  }
+}
