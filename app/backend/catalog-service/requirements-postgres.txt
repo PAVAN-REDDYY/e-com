@@ -1,0 +1,7 @@
+# Production database driver. Install on top of the base runtime:
+#   pip install -r requirements.txt -r requirements-postgres.txt
+#
+# asyncpg ships manylinux wheels, so this installs without a compiler on the
+# Linux containers used for staging/production/Kubernetes.
+-r requirements.txt
+asyncpg>=0.30,<0.31

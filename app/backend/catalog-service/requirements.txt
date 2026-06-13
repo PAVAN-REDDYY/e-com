@@ -1,0 +1,16 @@
+# ── Runtime (driver-agnostic; installs cleanly everywhere) ───────────────────
+fastapi>=0.115,<0.116
+uvicorn[standard]>=0.30,<0.35
+pydantic>=2.9,<3
+pydantic-settings>=2.5,<3
+
+# ── Database core ────────────────────────────────────────────────────────────
+SQLAlchemy[asyncio]>=2.0.35,<2.1
+alembic>=1.13,<2
+aiosqlite>=0.20,<0.22      # SQLite driver — zero-setup local dev fallback
+greenlet>=3.0             # required by SQLAlchemy async
+
+# NOTE: The PostgreSQL driver (asyncpg) lives in requirements-postgres.txt.
+# It has no prebuilt wheel for some new CPython versions on Windows, but installs
+# cleanly on the Linux images used for staging/production/Kubernetes. Local dev
+# uses SQLite, so you don't need it here.
