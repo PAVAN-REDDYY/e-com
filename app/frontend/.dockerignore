@@ -1,0 +1,11 @@
+# Exclude local artefacts so the image builds from a clean context.
+node_modules/
+dist/
+.env
+.env.*
+.git/
+.gitignore
+npm-debug.log*
+Dockerfile
+.dockerignore
+README.md
