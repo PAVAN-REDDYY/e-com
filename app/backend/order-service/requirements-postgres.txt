@@ -1,0 +1,13 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# order-service — Postgres driver (production / docker-compose)
+#
+# Install on top of the base set:
+#   pip install -r requirements.txt -r requirements-postgres.txt
+#
+# Then point DATABASE_URL at Postgres, e.g.
+#   postgresql+asyncpg://user:password@host:5432/orders
+# ─────────────────────────────────────────────────────────────────────────────
+
+-r requirements.txt
+
+asyncpg==0.29.0

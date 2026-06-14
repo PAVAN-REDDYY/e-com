@@ -1,0 +1,21 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# order-service — runtime dependencies
+#
+# Local dev defaults to SQLite (aiosqlite). For Postgres, also install
+# requirements-postgres.txt (adds the asyncpg driver).
+# ─────────────────────────────────────────────────────────────────────────────
+
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+
+# Config & validation
+pydantic==2.9.2
+pydantic-settings==2.5.2
+
+# Database (async SQLAlchemy + Alembic migrations)
+sqlalchemy==2.0.35
+alembic==1.13.3
+aiosqlite==0.20.0
+
+# Service-to-service HTTP (calls catalog-service for live prices)
+httpx==0.27.2
