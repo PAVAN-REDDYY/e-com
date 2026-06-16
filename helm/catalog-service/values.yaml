@@ -1,0 +1,114 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Default values for catalog-service.
+# Override per-environment with `-f values-prod.yaml` or `--set key=value`.
+# ─────────────────────────────────────────────────────────────────────────────
+
+replicaCount: 2
+
+image:
+  repository: fallseed/catalog-service
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# ── Application configuration (non-secret) → rendered into a ConfigMap ─────────
+config:
+  ENV: production            # "local" auto-creates schema + seeds demo data
+  SERVICE_NAME: catalog-service
+  API_PREFIX: /api
+  PORT: "8001"
+  LOG_LEVEL: info
+  CORS_ORIGINS: "https://fallseed.com"
+
+# ── Secret configuration (DATABASE_URL) ───────────────────────────────────────
+# Either provide the value here (templated into a Secret) OR reference an
+# existing Secret you manage out-of-band (recommended for production).
+secret:
+  # If set, the chart will NOT create a Secret and will read DATABASE_URL from
+  # this existing Secret instead. The key must be "DATABASE_URL".
+  existingSecret: ""
+  # Used only when existingSecret is empty.
+  databaseUrl: "postgresql+asyncpg://fallseed:fallseed@postgres:5432/catalog"
+
+# ── Database migrations (Alembic) ─────────────────────────────────────────────
+# When enabled, a pre-install/pre-upgrade Helm hook Job runs `alembic upgrade
+# head` once, and the Deployment starts Uvicorn directly (skipping the migrate
+# step in the image entrypoint) so replicas don't race on migrations.
+migrations:
+  enabled: true
+  backoffLimit: 3
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+service:
+  type: ClusterIP
+  port: 8001          # service port
+  targetPort: 8001    # container port
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: catalog.fallseed.local
+      paths:
+        - path: /api
+          pathType: Prefix
+  tls: []
+    # - secretName: catalog-tls
+    #   hosts:
+    #     - catalog.fallseed.local
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 75
+  # targetMemoryUtilizationPercentage: 80
+
+# ── Health probes (paths are relative to API_PREFIX) ──────────────────────────
+probes:
+  liveness:
+    path: /api/health
+    initialDelaySeconds: 10
+    periodSeconds: 15
+    timeoutSeconds: 3
+    failureThreshold: 3
+  readiness:
+    path: /api/ready
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# Pod-level security: run as non-root (the image already creates "appuser").
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+      - ALL
+
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
