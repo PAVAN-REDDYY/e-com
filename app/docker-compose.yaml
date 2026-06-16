@@ -1,0 +1,78 @@
+---
+services:
+  # ── Database ────────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: fallseed-postgres
+    environment:
+      POSTGRES_USER: fallseed
+      POSTGRES_PASSWORD: fallseed
+      POSTGRES_DB: fallseed          # default DB; init.sql creates catalog + orders
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Runs ONCE on a fresh volume — creates the "catalog" and "orders" databases.
+      - ./backend/postgres-init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fallseed"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Catalog service (products) ──────────────────────────────────────────────
+  catalog-service:
+    build: ./backend/catalog-service
+    container_name: fallseed-catalog
+    environment:
+      ENV: local                     # auto-creates schema + seeds demo products (idempotent)
+      SERVICE_NAME: catalog-service
+      PORT: 8001
+      DATABASE_URL: postgresql+asyncpg://fallseed:fallseed@postgres:5432/catalog
+      CORS_ORIGINS: http://localhost:8080
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── Order service (orders + pricing) ────────────────────────────────────────
+  order-service:
+    build: ./backend/order-service
+    container_name: fallseed-order
+    environment:
+      ENV: local
+      SERVICE_NAME: order-service
+      PORT: 8002
+      DATABASE_URL: postgresql+asyncpg://fallseed:fallseed@postgres:5432/orders
+      # Service-to-service call uses the compose network DNS name, not localhost.
+      CATALOG_SERVICE_URL: http://catalog-service:8001/api
+      CATALOG_TIMEOUT_SECONDS: "5"
+      CORS_ORIGINS: http://localhost:8080
+    ports:
+      - "8002:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      catalog-service:
+        condition: service_started
+
+  # ── Frontend (static build served by Nginx) ─────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Vite inlines these at BUILD time. They are called by the user's BROWSER,
+        # so they must be the host-published URLs (localhost), not compose DNS.
+        VITE_CATALOG_API_BASE_URL: http://localhost:8001/api
+        VITE_ORDERS_API_BASE_URL: http://localhost:8002/api
+        VITE_USE_MOCK_API: "false"
+    container_name: fallseed-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - catalog-service
+      - order-service
+
+volumes:
+  pgdata:
