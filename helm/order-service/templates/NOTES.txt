@@ -1,0 +1,24 @@
+✅ {{ include "order-service.fullname" . }} deployed (release: {{ .Release.Name }}, namespace: {{ .Release.Namespace }}).
+
+Image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+Replicas: {{ if .Values.autoscaling.enabled }}autoscaled {{ .Values.autoscaling.minReplicas }}–{{ .Values.autoscaling.maxReplicas }}{{ else }}{{ .Values.replicaCount }}{{ end }}
+Upstream catalog: {{ .Values.config.CATALOG_SERVICE_URL }}
+
+Check rollout:
+  kubectl -n {{ .Release.Namespace }} rollout status deploy/{{ include "order-service.fullname" . }}
+
+{{- if .Values.ingress.enabled }}
+
+Reachable via Ingress at:
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}{{ (index .paths 0).path }}/health
+{{- end }}
+{{- else }}
+
+The Service is ClusterIP only. Port-forward to reach it locally:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "order-service.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+  curl http://localhost:{{ .Values.service.port }}{{ .Values.config.API_PREFIX }}/health
+{{- end }}
+
+⚠️  order-service depends on catalog-service. Make sure CATALOG_SERVICE_URL
+    ({{ .Values.config.CATALOG_SERVICE_URL }}) points at the catalog-service Service in this cluster.
