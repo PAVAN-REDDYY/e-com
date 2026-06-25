@@ -11,7 +11,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       # Runs ONCE on a fresh volume — creates the "catalog" and "orders" databases.
-      - ./backend/postgres-init:/docker-entrypoint-initdb.d:ro
+      - ./database/postgres-init:/docker-entrypoint-initdb.d:ro
     ports:
       - "5432:5432"
     healthcheck:
