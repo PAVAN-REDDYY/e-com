@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: catalog-config
+  namespace: ecom
+data:
+  ENV: local
+  SERVICE_NAME: catalog-service
+  PORT: "8001"
+  CORS_ORIGINS: http://localhost:8080

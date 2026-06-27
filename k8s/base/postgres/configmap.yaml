@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: ecom
+data:
+  init.sql: |
+    CREATE DATABASE catalog;
+    CREATE DATABASE orders;
+    GRANT ALL PRIVILEGES ON DATABASE catalog TO fallseed;
+    GRANT ALL PRIVILEGES ON DATABASE orders TO fallseed;
